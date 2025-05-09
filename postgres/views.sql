@@ -6,9 +6,9 @@ SELECT
     b.location,
     COUNT(u.unit_id) AS total_units,
     COUNT(CASE WHEN u.occupancy_status THEN 1 END) AS occupied_units,
-    ROUND(AVG(u.area_sqft), 2) AS avg_unit_area_sqft,
+    ROUND(AVG(u.area_sqft)::NUMERIC, 2) AS avg_unit_area_sqft,
     ROUND(
-        COUNT(CASE WHEN u.occupancy_status THEN 1 END)::decimal / COUNT(u.unit_id) * 100, 
+        COUNT(CASE WHEN u.occupancy_status THEN 1 END)::DECIMAL / COUNT(u.unit_id) * 100,
         2
     ) AS occupancy_rate_pct
 FROM buildings b
@@ -23,7 +23,7 @@ SELECT
     COUNT(*) AS total_units,
     COUNT(CASE WHEN u.occupancy_status THEN 1 END) AS occupied,
     ROUND(
-        COUNT(CASE WHEN u.occupancy_status THEN 1 END)::decimal / COUNT(*) * 100, 
+        COUNT(CASE WHEN u.occupancy_status THEN 1 END)::DECIMAL / COUNT(*) * 100,
         2
     ) AS occupancy_pct
 FROM units u
@@ -36,7 +36,7 @@ SELECT
     e.building_id,
     b.name AS building_name,
     DATE(e.timestamp) AS usage_date,
-    ROUND(SUM(e.kWh_used), 2) AS total_kWh
+    ROUND(SUM(e.kWh_used)::NUMERIC, 2) AS total_kWh
 FROM energy_usage e
 JOIN buildings b ON b.building_id = e.building_id
 GROUP BY e.building_id, b.name, DATE(e.timestamp)
@@ -48,7 +48,7 @@ SELECT
     e.building_id,
     b.name AS building_name,
     DATE_TRUNC('month', e.timestamp) AS month,
-    ROUND(SUM(e.kWh_used), 2) AS total_kWh
+    ROUND(SUM(e.kWh_used)::NUMERIC, 2) AS total_kWh
 FROM energy_usage e
 JOIN buildings b ON b.building_id = e.building_id
 GROUP BY e.building_id, b.name, DATE_TRUNC('month', e.timestamp)
@@ -60,13 +60,14 @@ SELECT
     e.building_id,
     b.name AS building_name,
     DATE(e.timestamp) AS ds,
-    ROUND(SUM(e.kWh_used), 2) AS y
+    ROUND(SUM(e.kWh_used)::NUMERIC, 2) AS y
 FROM energy_usage e
 JOIN buildings b ON b.building_id = e.building_id
 GROUP BY e.building_id, b.name, DATE(e.timestamp)
 ORDER BY ds;
 
 -- View: Maintenance Summary (stub – extend if you add maintenance_logs table)
+-- Ensure the maintenance_logs table has data before using this view
 CREATE OR REPLACE VIEW vw_maintenance_summary AS
 SELECT
     m.building_id,
